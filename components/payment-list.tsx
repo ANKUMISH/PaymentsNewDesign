@@ -158,6 +158,19 @@ export function PaymentList({ source = "Patients" }: PaymentListProps) {
   const [showEditModal, setShowEditModal] = useState(false)
   const [showLinesDialog, setShowLinesDialog] = useState(false)
   const [selectedPaymentForLines, setSelectedPaymentForLines] = useState<Payment | null>(null)
+  const [showAddLineInDialog, setShowAddLineInDialog] = useState(false)
+  const [newLineInDialog, setNewLineInDialog] = useState({
+    patientName: "",
+    dos: "",
+    cpt: "",
+    charges: 0,
+    paymentAmount: 0,
+    deductible: 0,
+    coins: 0,
+    copay: 0,
+    allowable: 0,
+    adjustment: 0,
+  })
   const [selectedPaymentForDelete, setSelectedPaymentForDelete] = useState<Payment | null>(null)
   const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false)
   const [existingEditDocuments, setExistingEditDocuments] = useState<string[]>([])
@@ -1168,7 +1181,6 @@ export function PaymentList({ source = "Patients" }: PaymentListProps) {
                         <th className="px-3 py-2 text-left font-semibold text-gray-700 border-r border-gray-200">Patient Name <span className="text-red-500">*</span></th>
                         <th className="px-3 py-2 text-left font-semibold text-gray-700 border-r border-gray-200">DOS <span className="text-red-500">*</span></th>
                         <th className="px-3 py-2 text-left font-semibold text-gray-700 border-r border-gray-200">CPT <span className="text-red-500">*</span></th>
-                        <th className="px-3 py-2 text-left font-semibold text-gray-700 border-r border-gray-200">Visit ID</th>
                         <th className="px-3 py-2 text-left font-semibold text-gray-700 border-r border-gray-200">Charges</th>
                         <th className="px-3 py-2 text-left font-semibold text-gray-700 border-r border-gray-200">Payment Amt <span className="text-red-500">*</span></th>
                         <th className="px-3 py-2 text-left font-semibold text-gray-700 border-r border-gray-200">Deductible</th>
@@ -1230,7 +1242,6 @@ export function PaymentList({ source = "Patients" }: PaymentListProps) {
                               const updated = [...(newInsurancePayment.serviceLines || [])];
                               updated[index].cpt = value;
                               if (line.patientName && VISITS[line.patientName]?.[line.dos]) {
-                                updated[index].visitId = VISITS[line.patientName][line.dos].visitIds[value] || "";
                                 updated[index].charges = VISITS[line.patientName][line.dos].charges[value] || 0;
                               }
                               setNewInsurancePayment({...newInsurancePayment, serviceLines: updated});
@@ -1255,7 +1266,7 @@ export function PaymentList({ source = "Patients" }: PaymentListProps) {
                           </td>
                           <td className="px-2 py-2 border-r border-gray-200">
                             <div className="text-xs px-1 py-1 bg-gray-100 rounded">
-                              {line.visitId || "-"}
+                              {line.charges || 0}
                             </div>
                           </td>
                           <td className="px-2 py-2 border-r border-gray-200">
@@ -2079,9 +2090,9 @@ export function PaymentList({ source = "Patients" }: PaymentListProps) {
                         <th className="px-3 py-2 text-left font-semibold text-gray-700 border-r border-gray-200">Patient</th>
                         <th className="px-3 py-2 text-left font-semibold text-gray-700 border-r border-gray-200">DOS</th>
                         <th className="px-3 py-2 text-left font-semibold text-gray-700 border-r border-gray-200">CPT</th>
-                        <th className="px-3 py-2 text-left font-semibold text-gray-700 border-r border-gray-200">Visit ID</th>
                         <th className="px-3 py-2 text-left font-semibold text-gray-700 border-r border-gray-200">Charges</th>
                         <th className="px-3 py-2 text-left font-semibold text-gray-700 border-r border-gray-200">Payment Amt</th>
+                        <th className="px-3 py-2 text-left font-semibold text-gray-700 border-r border-gray-200">Visit ID</th>
                         <th className="px-3 py-2 text-left font-semibold text-gray-700 border-r border-gray-200">Applied Amt</th>
                         <th className="px-3 py-2 text-left font-semibold text-gray-700 border-r border-gray-200">Applied On</th>
                         <th className="px-3 py-2 text-left font-semibold text-gray-700 border-r border-gray-200">Status</th>
@@ -2101,9 +2112,9 @@ export function PaymentList({ source = "Patients" }: PaymentListProps) {
                             <td className="px-3 py-2 border-r border-gray-200 text-gray-700">{line.patientName}</td>
                             <td className="px-3 py-2 border-r border-gray-200 text-gray-700">{line.dos}</td>
                             <td className="px-3 py-2 border-r border-gray-200 text-gray-700">{line.cpt || "-"}</td>
-                            <td className="px-3 py-2 border-r border-gray-200 text-gray-700">{line.visitId || "-"}</td>
                             <td className="px-3 py-2 border-r border-gray-200 text-gray-700 font-medium">${charges.toFixed(2)}</td>
                             <td className="px-3 py-2 border-r border-gray-200 text-gray-700 font-medium">${line.paymentAmount.toFixed(2)}</td>
+                            <td className="px-3 py-2 border-r border-gray-200 text-gray-700">{isApplied ? (line.visitId || "-") : "-"}</td>
                             <td className={`px-3 py-2 border-r border-gray-200 font-medium ${
                               isApplied && line.appliedAmount < line.paymentAmount ? 'text-red-600' : 'text-gray-700'
                             }`}>
@@ -2180,9 +2191,239 @@ export function PaymentList({ source = "Patients" }: PaymentListProps) {
                   </div>
                 )}
 
+                {/* Add Line Item Form */}
+                {showAddLineInDialog && (
+                  <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                    <div className="mb-4">
+                      <h4 className="text-sm font-semibold text-gray-800 mb-4">Add New Service Line</h4>
+                      <div className="space-y-3">
+                        {/* Patient Name and DOS in one row */}
+                        <div className="grid grid-cols-2 gap-3">
+                          <div>
+                            <Label className="text-xs font-semibold">Patient Name</Label>
+                            <Select value={newLineInDialog.patientName} onValueChange={(value) => {
+                              setNewLineInDialog({...newLineInDialog, patientName: value, dos: "", cpt: "", charges: 0});
+                            }}>
+                              <SelectTrigger className="mt-1 h-8 text-xs">
+                                <SelectValue placeholder="Select patient" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                {SAMPLE_PATIENTS.map((p) => (
+                                  <SelectItem key={p.id} value={p.firstName + " " + p.lastName}>{p.firstName} {p.lastName}</SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                          </div>
+                          <div>
+                            <Label className="text-xs font-semibold">DOS</Label>
+                            <Select value={newLineInDialog.dos} onValueChange={(value) => {
+                              setNewLineInDialog({...newLineInDialog, dos: value, cpt: "", charges: 0});
+                            }}>
+                              <SelectTrigger className="mt-1 h-8 text-xs">
+                                <SelectValue placeholder="Select DOS" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                {newLineInDialog.patientName && VISITS[newLineInDialog.patientName] ? 
+                                  Object.keys(VISITS[newLineInDialog.patientName]).map(dos => (
+                                    <SelectItem key={dos} value={dos}>{dos}</SelectItem>
+                                  ))
+                                : null}
+                              </SelectContent>
+                            </Select>
+                          </div>
+                        </div>
+
+                        {/* CPT and Charges in one row */}
+                        <div className="grid grid-cols-2 gap-3">
+                          <div>
+                            <Label className="text-xs font-semibold">CPT</Label>
+                            <Select value={newLineInDialog.cpt} onValueChange={(value) => {
+                              if (newLineInDialog.patientName && VISITS[newLineInDialog.patientName]?.[newLineInDialog.dos]) {
+                                const charges = VISITS[newLineInDialog.patientName][newLineInDialog.dos].charges[value] || 0;
+                                setNewLineInDialog({...newLineInDialog, cpt: value, charges: charges, paymentAmount: charges});
+                              } else {
+                                setNewLineInDialog({...newLineInDialog, cpt: value});
+                              }
+                            }}>
+                              <SelectTrigger className="mt-1 h-8 text-xs">
+                                <SelectValue placeholder="Select CPT" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                {newLineInDialog.patientName && newLineInDialog.dos && VISITS[newLineInDialog.patientName]?.[newLineInDialog.dos] ? 
+                                  VISITS[newLineInDialog.patientName][newLineInDialog.dos].cpts.map(cpt => (
+                                    <SelectItem key={cpt} value={cpt}>{cpt}</SelectItem>
+                                  ))
+                                : null}
+                              </SelectContent>
+                            </Select>
+                          </div>
+                          <div>
+                            <Label className="text-xs font-semibold">Charges</Label>
+                            <div className="mt-1 px-2 py-2 bg-gray-100 rounded text-xs text-gray-700">
+                              ${newLineInDialog.charges.toFixed(2)}
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Payment Amount, Deductible, Coins, Copay */}
+                        <div className="grid grid-cols-4 gap-2">
+                          <div>
+                            <Label className="text-xs font-semibold">Payment Amt</Label>
+                            <Input
+                              type="number"
+                              step="0.01"
+                              value={newLineInDialog.paymentAmount}
+                              onChange={(e) => setNewLineInDialog({...newLineInDialog, paymentAmount: parseFloat(e.target.value) || 0})}
+                              className="mt-1 h-8 text-xs"
+                            />
+                          </div>
+                          <div>
+                            <Label className="text-xs font-semibold">Deductible</Label>
+                            <Input
+                              type="number"
+                              step="0.01"
+                              value={newLineInDialog.deductible}
+                              onChange={(e) => setNewLineInDialog({...newLineInDialog, deductible: parseFloat(e.target.value) || 0})}
+                              className="mt-1 h-8 text-xs"
+                            />
+                          </div>
+                          <div>
+                            <Label className="text-xs font-semibold">Coins</Label>
+                            <Input
+                              type="number"
+                              step="0.01"
+                              value={newLineInDialog.coins}
+                              onChange={(e) => setNewLineInDialog({...newLineInDialog, coins: parseFloat(e.target.value) || 0})}
+                              className="mt-1 h-8 text-xs"
+                            />
+                          </div>
+                          <div>
+                            <Label className="text-xs font-semibold">Copay</Label>
+                            <Input
+                              type="number"
+                              step="0.01"
+                              value={newLineInDialog.copay}
+                              onChange={(e) => setNewLineInDialog({...newLineInDialog, copay: parseFloat(e.target.value) || 0})}
+                              className="mt-1 h-8 text-xs"
+                            />
+                          </div>
+                        </div>
+
+                        {/* Allowable and Adjustment */}
+                        <div className="grid grid-cols-2 gap-3">
+                          <div>
+                            <Label className="text-xs font-semibold">Allowable</Label>
+                            <Input
+                              type="number"
+                              step="0.01"
+                              value={newLineInDialog.allowable}
+                              onChange={(e) => setNewLineInDialog({...newLineInDialog, allowable: parseFloat(e.target.value) || 0})}
+                              className="mt-1 h-8 text-xs"
+                            />
+                          </div>
+                          <div>
+                            <Label className="text-xs font-semibold">Adjustment</Label>
+                            <Input
+                              type="number"
+                              step="0.01"
+                              value={newLineInDialog.adjustment}
+                              onChange={(e) => setNewLineInDialog({...newLineInDialog, adjustment: parseFloat(e.target.value) || 0})}
+                              className="mt-1 h-8 text-xs"
+                            />
+                          </div>
+                        </div>
+
+                        {/* Add and Cancel buttons */}
+                        <div className="flex gap-2 justify-end mt-4 pt-3 border-t border-blue-200">
+                          <Button
+                            variant="outline"
+                            onClick={() => {
+                              setShowAddLineInDialog(false);
+                              setNewLineInDialog({
+                                patientName: "",
+                                dos: "",
+                                cpt: "",
+                                charges: 0,
+                                paymentAmount: 0,
+                                deductible: 0,
+                                coins: 0,
+                                copay: 0,
+                                allowable: 0,
+                                adjustment: 0,
+                              });
+                            }}
+                            className="h-7 text-xs"
+                          >
+                            Cancel
+                          </Button>
+                          <Button
+                            onClick={() => {
+                              if (!newLineInDialog.patientName || !newLineInDialog.dos || !newLineInDialog.cpt) {
+                                alert("Please fill in all required fields");
+                                return;
+                              }
+                              if (selectedPaymentForLines) {
+                                const newLine: ServiceLine = {
+                                  id: `line-${Date.now()}`,
+                                  patientName: newLineInDialog.patientName,
+                                  dos: newLineInDialog.dos,
+                                  cpt: newLineInDialog.cpt,
+                                  visitId: "", // visitId is NOT populated when adding new line
+                                  charges: newLineInDialog.charges,
+                                  paymentAmount: newLineInDialog.paymentAmount,
+                                  deductible: newLineInDialog.deductible,
+                                  coins: newLineInDialog.coins,
+                                  copay: newLineInDialog.copay,
+                                  allowable: newLineInDialog.allowable,
+                                  adjustment: newLineInDialog.adjustment,
+                                  appliedAmount: 0,
+                                  lineStatus: "new" as LineStatus,
+                                };
+                                const updatedPayment = {
+                                  ...selectedPaymentForLines,
+                                  serviceLines: [...(selectedPaymentForLines.serviceLines || []), newLine],
+                                };
+                                setSelectedPaymentForLines(updatedPayment);
+                                setPayments(prev =>
+                                  prev.map(p => p.id === updatedPayment.id ? updatedPayment : p)
+                                );
+                                setShowAddLineInDialog(false);
+                                setNewLineInDialog({
+                                  patientName: "",
+                                  dos: "",
+                                  cpt: "",
+                                  charges: 0,
+                                  paymentAmount: 0,
+                                  deductible: 0,
+                                  coins: 0,
+                                  copay: 0,
+                                  allowable: 0,
+                                  adjustment: 0,
+                                });
+                              }
+                            }}
+                            className="bg-green-500 hover:bg-green-600 text-white h-7 text-xs"
+                          >
+                            Add Line Item
+                          </Button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
                 {/* Dialog Actions */}
                 <div className="flex justify-between items-center mt-6 border-t pt-4">
-                  <div>
+                  <div className="flex gap-2">
+                    {selectedPaymentForLines.paymentStatus !== "consumed" && (
+                      <Button
+                        onClick={() => setShowAddLineInDialog(!showAddLineInDialog)}
+                        className="bg-blue-500 hover:bg-blue-600 text-white text-xs"
+                      >
+                        <Plus className="h-3 w-3 mr-1" />
+                        Add Line Item
+                      </Button>
+                    )}
                     {selectedPaymentForLines.paymentStatus !== "consumed" && selectedPaymentForLines.serviceLines.some(l => l.lineStatus === "new") && (
                       <Button
                         onClick={() => {
