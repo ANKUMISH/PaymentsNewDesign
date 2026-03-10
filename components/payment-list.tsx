@@ -2178,161 +2178,6 @@ export function PaymentList({ source = "Patients" }: PaymentListProps) {
                           </tr>
                         );
                       })}
-                      {/* Add Line Item - Inline Table Row */}
-                      {showAddLineInDialog && (
-                        <tr className="bg-slate-50 border-t-2 border-slate-200">
-                          <td className="px-3 py-2 border-r border-gray-200">
-                            <Select value={newLineInDialog.patientName} onValueChange={(value) => {
-                              setNewLineInDialog({...newLineInDialog, patientName: value, dos: "", cpt: "", charges: 0});
-                            }}>
-                              <SelectTrigger className="h-6 text-xs border-0 px-1 focus:ring-0">
-                                <SelectValue placeholder="Select patient" />
-                              </SelectTrigger>
-                              <SelectContent>
-                                {SAMPLE_PATIENTS.map((p) => (
-                                  <SelectItem key={p.id} value={p.firstName + " " + p.lastName}>{p.firstName} {p.lastName}</SelectItem>
-                                ))}
-                              </SelectContent>
-                            </Select>
-                          </td>
-                          <td className="px-3 py-2 border-r border-gray-200">
-                            <Select value={newLineInDialog.dos} onValueChange={(value) => {
-                              setNewLineInDialog({...newLineInDialog, dos: value, cpt: "", charges: 0});
-                            }}>
-                              <SelectTrigger className="h-6 text-xs border-0 px-1 focus:ring-0">
-                                <SelectValue placeholder="Select DOS" />
-                              </SelectTrigger>
-                              <SelectContent>
-                                {newLineInDialog.patientName && VISITS[newLineInDialog.patientName] ? 
-                                  Object.keys(VISITS[newLineInDialog.patientName]).map(dos => (
-                                    <SelectItem key={dos} value={dos}>{dos}</SelectItem>
-                                  ))
-                                : null}
-                              </SelectContent>
-                            </Select>
-                          </td>
-                          <td className="px-3 py-2 border-r border-gray-200">
-                            <Select value={newLineInDialog.cpt} onValueChange={(value) => {
-                              if (newLineInDialog.patientName && VISITS[newLineInDialog.patientName]?.[newLineInDialog.dos]) {
-                                const charges = VISITS[newLineInDialog.patientName][newLineInDialog.dos].charges[value] || 0;
-                                setNewLineInDialog({...newLineInDialog, cpt: value, charges: charges, paymentAmount: charges});
-                              } else {
-                                setNewLineInDialog({...newLineInDialog, cpt: value});
-                              }
-                            }}>
-                              <SelectTrigger className="h-6 text-xs border-0 px-1 focus:ring-0">
-                                <SelectValue placeholder="Select CPT" />
-                              </SelectTrigger>
-                              <SelectContent>
-                                {newLineInDialog.patientName && newLineInDialog.dos && VISITS[newLineInDialog.patientName]?.[newLineInDialog.dos] ? 
-                                  VISITS[newLineInDialog.patientName][newLineInDialog.dos].cpts.map(cpt => (
-                                    <SelectItem key={cpt} value={cpt}>{cpt}</SelectItem>
-                                  ))
-                                : null}
-                              </SelectContent>
-                            </Select>
-                          </td>
-                          <td className="px-3 py-2 border-r border-gray-200">
-                            <div className="text-xs px-1 py-1 bg-gray-100 rounded">
-                              ${newLineInDialog.charges.toFixed(2)}
-                            </div>
-                          </td>
-                          <td className="px-3 py-2 border-r border-gray-200">
-                            <input 
-                              type="number"
-                              placeholder="0.00"
-                              step="0.01"
-                              value={newLineInDialog.paymentAmount}
-                              onChange={(e) => setNewLineInDialog({...newLineInDialog, paymentAmount: parseFloat(e.target.value) || 0})}
-                              className="w-12 px-1 py-1 text-xs border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-slate-400"
-                            />
-                          </td>
-                          <td className="px-3 py-2 border-r border-gray-200">
-                            <div className="text-xs text-gray-500">-</div>
-                          </td>
-                          <td className="px-3 py-2 border-r border-gray-200">
-                            <div className="text-xs text-gray-500">-</div>
-                          </td>
-                          <td className="px-3 py-2 border-r border-gray-200">
-                            <div className="text-xs text-gray-500">-</div>
-                          </td>
-                          <td className="px-3 py-2 border-r border-gray-200">
-                            <span className="inline-block px-2 py-1 text-xs font-medium bg-slate-200 text-slate-700 rounded">New</span>
-                          </td>
-                          <td className="px-3 py-2 flex gap-1">
-                            <button
-                              onClick={() => {
-                                if (!newLineInDialog.patientName || !newLineInDialog.dos || !newLineInDialog.cpt) {
-                                  alert("Please fill in all required fields");
-                                  return;
-                                }
-                                if (selectedPaymentForLines) {
-                                  const newLine: ServiceLine = {
-                                    id: `line-${Date.now()}`,
-                                    patientName: newLineInDialog.patientName,
-                                    dos: newLineInDialog.dos,
-                                    cpt: newLineInDialog.cpt,
-                                    visitId: "",
-                                    charges: newLineInDialog.charges,
-                                    paymentAmount: newLineInDialog.paymentAmount,
-                                    deductible: newLineInDialog.deductible,
-                                    coins: newLineInDialog.coins,
-                                    copay: newLineInDialog.copay,
-                                    allowable: newLineInDialog.allowable,
-                                    adjustment: newLineInDialog.adjustment,
-                                    appliedAmount: 0,
-                                    lineStatus: "new" as LineStatus,
-                                  };
-                                  const updatedPayment = {
-                                    ...selectedPaymentForLines,
-                                    serviceLines: [...(selectedPaymentForLines.serviceLines || []), newLine],
-                                  };
-                                  setSelectedPaymentForLines(updatedPayment);
-                                  setPayments(prev =>
-                                    prev.map(p => p.id === updatedPayment.id ? updatedPayment : p)
-                                  );
-                                  setShowAddLineInDialog(false);
-                                  setNewLineInDialog({
-                                    patientName: "",
-                                    dos: "",
-                                    cpt: "",
-                                    charges: 0,
-                                    paymentAmount: 0,
-                                    deductible: 0,
-                                    coins: 0,
-                                    copay: 0,
-                                    allowable: 0,
-                                    adjustment: 0,
-                                  });
-                                }
-                              }}
-                              className="px-2 py-1 text-xs bg-green-500 hover:bg-green-600 text-white rounded transition-colors"
-                            >
-                              Add
-                            </button>
-                            <button
-                              onClick={() => {
-                                setShowAddLineInDialog(false);
-                                setNewLineInDialog({
-                                  patientName: "",
-                                  dos: "",
-                                  cpt: "",
-                                  charges: 0,
-                                  paymentAmount: 0,
-                                  deductible: 0,
-                                  coins: 0,
-                                  copay: 0,
-                                  allowable: 0,
-                                  adjustment: 0,
-                                });
-                              }}
-                              className="px-2 py-1 text-xs border border-gray-300 hover:bg-gray-50 text-gray-600 rounded transition-colors"
-                            >
-                              Cancel
-                            </button>
-                          </td>
-                        </tr>
-                      )}
                     </tbody>
                   </table>
                 </div>
@@ -2346,13 +2191,233 @@ export function PaymentList({ source = "Patients" }: PaymentListProps) {
                   </div>
                 )}
 
+                {/* Add Line Item Form Section */}
+                {showAddLineInDialog && (
+                  <div className="mt-6 p-4 border border-gray-200 rounded-lg bg-white">
+                    <h4 className="text-sm font-semibold text-gray-800 mb-4">Add New Service Line</h4>
+                    <div className="border border-gray-200 rounded-lg overflow-hidden">
+                      <table className="w-full text-xs">
+                        <thead style={{ backgroundColor: "#F1F5F9" }}>
+                          <tr>
+                            <th className="px-3 py-2 text-left font-semibold text-gray-700 border-r border-gray-200">Patient Name <span className="text-red-500">*</span></th>
+                            <th className="px-3 py-2 text-left font-semibold text-gray-700 border-r border-gray-200">DOS <span className="text-red-500">*</span></th>
+                            <th className="px-3 py-2 text-left font-semibold text-gray-700 border-r border-gray-200">CPT <span className="text-red-500">*</span></th>
+                            <th className="px-3 py-2 text-left font-semibold text-gray-700 border-r border-gray-200">Charges</th>
+                            <th className="px-3 py-2 text-left font-semibold text-gray-700 border-r border-gray-200">Payment Amt <span className="text-red-500">*</span></th>
+                            <th className="px-3 py-2 text-left font-semibold text-gray-700 border-r border-gray-200">Deductible</th>
+                            <th className="px-3 py-2 text-left font-semibold text-gray-700 border-r border-gray-200">Coins</th>
+                            <th className="px-3 py-2 text-left font-semibold text-gray-700 border-r border-gray-200">Copay</th>
+                            <th className="px-3 py-2 text-left font-semibold text-gray-700 border-r border-gray-200">Allowable</th>
+                            <th className="px-3 py-2 text-left font-semibold text-gray-700 border-r border-gray-200">Adjustment</th>
+                            <th className="px-3 py-2 text-left font-semibold text-gray-700"></th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          <tr className="bg-white border-t border-gray-200">
+                            <td className="px-2 py-2 border-r border-gray-200">
+                              <Select value={newLineInDialog.patientName} onValueChange={(value) => {
+                                setNewLineInDialog({...newLineInDialog, patientName: value, dos: "", cpt: "", charges: 0});
+                              }}>
+                                <SelectTrigger className="h-6 text-xs border-0 px-1 focus:ring-0">
+                                  <SelectValue placeholder="Select patient" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  {SAMPLE_PATIENTS.map((p) => (
+                                    <SelectItem key={p.id} value={p.firstName + " " + p.lastName}>{p.firstName} {p.lastName}</SelectItem>
+                                  ))}
+                                </SelectContent>
+                              </Select>
+                            </td>
+                            <td className="px-2 py-2 border-r border-gray-200">
+                              <Select value={newLineInDialog.dos} onValueChange={(value) => {
+                                setNewLineInDialog({...newLineInDialog, dos: value, cpt: "", charges: 0});
+                              }}>
+                                <SelectTrigger className="h-6 text-xs border-0 px-1 focus:ring-0">
+                                  <SelectValue placeholder="Select DOS" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  {newLineInDialog.patientName && VISITS[newLineInDialog.patientName] ? 
+                                    Object.keys(VISITS[newLineInDialog.patientName]).map(dos => (
+                                      <SelectItem key={dos} value={dos}>{dos}</SelectItem>
+                                    ))
+                                  : null}
+                                </SelectContent>
+                              </Select>
+                            </td>
+                            <td className="px-2 py-2 border-r border-gray-200">
+                              <Select value={newLineInDialog.cpt} onValueChange={(value) => {
+                                if (newLineInDialog.patientName && VISITS[newLineInDialog.patientName]?.[newLineInDialog.dos]) {
+                                  const charges = VISITS[newLineInDialog.patientName][newLineInDialog.dos].charges[value] || 0;
+                                  setNewLineInDialog({...newLineInDialog, cpt: value, charges: charges, paymentAmount: charges});
+                                } else {
+                                  setNewLineInDialog({...newLineInDialog, cpt: value});
+                                }
+                              }}>
+                                <SelectTrigger className="h-6 text-xs border-0 px-1 focus:ring-0">
+                                  <SelectValue placeholder="Select CPT" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  {newLineInDialog.patientName && newLineInDialog.dos && VISITS[newLineInDialog.patientName]?.[newLineInDialog.dos] ? 
+                                    VISITS[newLineInDialog.patientName][newLineInDialog.dos].cpts.map(cpt => (
+                                      <SelectItem key={cpt} value={cpt}>{cpt}</SelectItem>
+                                    ))
+                                  : null}
+                                </SelectContent>
+                              </Select>
+                            </td>
+                            <td className="px-2 py-2 border-r border-gray-200">
+                              <div className="text-xs px-1 py-1 bg-gray-100 rounded">
+                                ${newLineInDialog.charges.toFixed(2)}
+                              </div>
+                            </td>
+                            <td className="px-2 py-2 border-r border-gray-200">
+                              <input 
+                                type="number"
+                                placeholder="0.00"
+                                step="0.01"
+                                value={newLineInDialog.paymentAmount}
+                                onChange={(e) => setNewLineInDialog({...newLineInDialog, paymentAmount: parseFloat(e.target.value) || 0})}
+                                className="w-full px-2 py-1 text-xs border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-orange-400" 
+                              />
+                            </td>
+                            <td className="px-2 py-2 border-r border-gray-200">
+                              <input 
+                                type="number"
+                                placeholder="0.00"
+                                step="0.01"
+                                value={newLineInDialog.deductible}
+                                onChange={(e) => setNewLineInDialog({...newLineInDialog, deductible: parseFloat(e.target.value) || 0})}
+                                className="w-full px-2 py-1 text-xs border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-orange-400" 
+                              />
+                            </td>
+                            <td className="px-2 py-2 border-r border-gray-200">
+                              <input 
+                                type="number"
+                                placeholder="0.00"
+                                step="0.01"
+                                value={newLineInDialog.coins}
+                                onChange={(e) => setNewLineInDialog({...newLineInDialog, coins: parseFloat(e.target.value) || 0})}
+                                className="w-full px-2 py-1 text-xs border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-orange-400" 
+                              />
+                            </td>
+                            <td className="px-2 py-2 border-r border-gray-200">
+                              <input 
+                                type="number"
+                                placeholder="0.00"
+                                step="0.01"
+                                value={newLineInDialog.copay}
+                                onChange={(e) => setNewLineInDialog({...newLineInDialog, copay: parseFloat(e.target.value) || 0})}
+                                className="w-full px-2 py-1 text-xs border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-orange-400" 
+                              />
+                            </td>
+                            <td className="px-2 py-2 border-r border-gray-200">
+                              <input 
+                                type="number"
+                                placeholder="0.00"
+                                step="0.01"
+                                value={newLineInDialog.allowable}
+                                onChange={(e) => setNewLineInDialog({...newLineInDialog, allowable: parseFloat(e.target.value) || 0})}
+                                className="w-full px-2 py-1 text-xs border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-orange-400" 
+                              />
+                            </td>
+                            <td className="px-2 py-2 border-r border-gray-200">
+                              <input 
+                                type="number"
+                                placeholder="0.00"
+                                step="0.01"
+                                value={newLineInDialog.adjustment}
+                                onChange={(e) => setNewLineInDialog({...newLineInDialog, adjustment: parseFloat(e.target.value) || 0})}
+                                className="w-full px-2 py-1 text-xs border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-orange-400" 
+                              />
+                            </td>
+                            <td className="px-2 py-2 flex gap-1">
+                              <button 
+                                onClick={() => {
+                                  if (!newLineInDialog.patientName || !newLineInDialog.dos || !newLineInDialog.cpt) {
+                                    alert("Please fill in all required fields");
+                                    return;
+                                  }
+                                  if (selectedPaymentForLines) {
+                                    const newLine: ServiceLine = {
+                                      id: `line-${Date.now()}`,
+                                      patientName: newLineInDialog.patientName,
+                                      dos: newLineInDialog.dos,
+                                      cpt: newLineInDialog.cpt,
+                                      visitId: "",
+                                      charges: newLineInDialog.charges,
+                                      paymentAmount: newLineInDialog.paymentAmount,
+                                      deductible: newLineInDialog.deductible,
+                                      coins: newLineInDialog.coins,
+                                      copay: newLineInDialog.copay,
+                                      allowable: newLineInDialog.allowable,
+                                      adjustment: newLineInDialog.adjustment,
+                                      appliedAmount: 0,
+                                      lineStatus: "new" as LineStatus,
+                                    };
+                                    const updatedPayment = {
+                                      ...selectedPaymentForLines,
+                                      serviceLines: [...(selectedPaymentForLines.serviceLines || []), newLine],
+                                    };
+                                    setSelectedPaymentForLines(updatedPayment);
+                                    setPayments(prev =>
+                                      prev.map(p => p.id === updatedPayment.id ? updatedPayment : p)
+                                    );
+                                    setShowAddLineInDialog(false);
+                                    setNewLineInDialog({
+                                      patientName: "",
+                                      dos: "",
+                                      cpt: "",
+                                      charges: 0,
+                                      paymentAmount: 0,
+                                      deductible: 0,
+                                      coins: 0,
+                                      copay: 0,
+                                      allowable: 0,
+                                      adjustment: 0,
+                                    });
+                                  }
+                                }}
+                                className="p-1 bg-green-500 hover:bg-green-600 text-white rounded text-xs"
+                                title="Add line item"
+                              >
+                                ✓
+                              </button>
+                              <button 
+                                onClick={() => {
+                                  setShowAddLineInDialog(false);
+                                  setNewLineInDialog({
+                                    patientName: "",
+                                    dos: "",
+                                    cpt: "",
+                                    charges: 0,
+                                    paymentAmount: 0,
+                                    deductible: 0,
+                                    coins: 0,
+                                    copay: 0,
+                                    allowable: 0,
+                                    adjustment: 0,
+                                  });
+                                }}
+                                className="p-1 hover:bg-red-100 rounded"
+                                title="Cancel"
+                              >
+                                <Trash2 className="h-3 w-3 text-red-500" />
+                              </button>
+                            </td>
+                          </tr>
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                )}
+
                 {/* Dialog Actions */}
                 <div className="flex justify-between items-center mt-6 border-t pt-4">
                   <div className="flex gap-2">
                     {selectedPaymentForLines.paymentStatus !== "consumed" && (
                       <Button
                         onClick={() => setShowAddLineInDialog(!showAddLineInDialog)}
-                        className="bg-blue-500 hover:bg-blue-600 text-white text-xs"
+                        className="bg-orange-500 hover:bg-orange-600 text-white text-xs"
                       >
                         <Plus className="h-3 w-3 mr-1" />
                         Add Line Item
