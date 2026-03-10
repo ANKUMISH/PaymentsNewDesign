@@ -950,9 +950,12 @@ export function PaymentList({ source = "Patients" }: PaymentListProps) {
   const itemsPerPage = 5
 
   const filteredPayments = payments.filter((payment) => {
+    const searchName = source === "Insurance" 
+      ? payment.payerName || ""
+      : payment.patientName || ""
     const matchesSearch =
-      payment.patientName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      payment.id.toLowerCase().includes(searchTerm.toLowerCase())
+      searchName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (payment.id?.toLowerCase() || "").includes(searchTerm.toLowerCase())
     const matchesStatus = statusFilter === "All" || payment.status === statusFilter
     return matchesSearch && matchesStatus
   })
@@ -1085,7 +1088,7 @@ export function PaymentList({ source = "Patients" }: PaymentListProps) {
             {paginatedPayments.map((payment) => (
               <tr key={payment.id} style={{ borderBottom: "0.5px solid #CBD5E1" }} className="hover:bg-gray-50">
                 <td className={`text-xs text-gray-700 ${source === "Insurance" ? "px-3 py-2" : "px-4 py-2"}`} style={{ borderRight: "0.5px solid #CBD5E1" }}>{payment.id}</td>
-                <td className={`text-xs text-gray-700 ${source === "Insurance" ? "px-3 py-2" : "px-4 py-2"}`} style={{ borderRight: "0.5px solid #CBD5E1" }}>{payment.patientName}</td>
+                <td className={`text-xs text-gray-700 ${source === "Insurance" ? "px-3 py-2" : "px-4 py-2"}`} style={{ borderRight: "0.5px solid #CBD5E1" }}>{source === "Insurance" ? payment.payerName : payment.patientName}</td>
                 <td className={`text-xs text-gray-700 ${source === "Insurance" ? "px-3 py-2" : "px-4 py-2"}`} style={{ borderRight: "0.5px solid #CBD5E1" }}>{payment.checkDate}</td>
                 <td className={`text-xs text-gray-700 ${source === "Insurance" ? "px-3 py-2" : "px-4 py-2"}`} style={{ borderRight: "0.5px solid #CBD5E1" }}>{payment.paymentMethod}</td>
                 <td className={`text-xs text-gray-700 ${source === "Insurance" ? "px-3 py-2" : "px-4 py-2"}`} style={{ borderRight: "0.5px solid #CBD5E1" }}>{payment.checkNumber || "-"}</td>
@@ -1164,7 +1167,7 @@ export function PaymentList({ source = "Patients" }: PaymentListProps) {
                               setShowUploadModal(true)
                             }}
                             className="p-1 hover:bg-gray-100 rounded transition-colors"
-                            title={`Upload documents for ${payment.patientName}`}
+                            title={`Upload documents for ${source === "Insurance" ? payment.payerName : payment.patientName}`}
                           >
                             <Paperclip className="w-4 h-4" style={{ color: "rgb(4, 53, 95)" }} />
                           </button>
@@ -1173,8 +1176,8 @@ export function PaymentList({ source = "Patients" }: PaymentListProps) {
                           onClick={() => {
                             setSelectedPaymentForEdit(payment)
                             setEditFormData({
-                              patientName: payment.patientName,
-                              patientId: payment.patientId,
+                              patientName: payment.patientName || "",
+                              patientId: payment.patientId || "",
                               amount: payment.amount.toString(),
                               checkDate: payment.checkDate,
                               paymentMethod: payment.paymentMethod as PaymentMethod,
@@ -1210,7 +1213,7 @@ export function PaymentList({ source = "Patients" }: PaymentListProps) {
                               setShowUploadModal(true)
                             }}
                             className="p-1 hover:bg-gray-100 rounded transition-colors"
-                            title={`Upload documents for ${payment.patientName}`}
+                            title={`Upload documents for ${payment.payerName}`}
                           >
                             <Paperclip className="w-4 h-4" style={{ color: "rgb(4, 53, 95)" }} />
                           </button>
@@ -1221,14 +1224,14 @@ export function PaymentList({ source = "Patients" }: PaymentListProps) {
                               onClick={() => {
                                 setSelectedPaymentForEdit(payment)
                                 setEditFormData({
-                                  patientName: payment.patientName,
-                                  patientId: payment.patientId,
+                                  patientName: payment.patientName || "",
+                                  patientId: payment.patientId || "",
                                   amount: payment.amount.toString(),
                                   checkDate: payment.checkDate,
                                   paymentMethod: payment.paymentMethod as PaymentMethod,
                                   checkNumber: payment.checkNumber || "",
                                   status: payment.status,
-                                  provider: payment.provider,
+                                  provider: payment.provider || "",
                                   note: payment.note || "",
                                 })
                                 // Initialize existing documents if available
@@ -2507,7 +2510,7 @@ export function PaymentList({ source = "Patients" }: PaymentListProps) {
                       </tr>
                     </thead>
                     <tbody>
-                      {selectedPaymentForLines.serviceLines.map((line, index) => {
+                      {(selectedPaymentForLines.serviceLines || []).map((line, index) => {
                         const isPending = line.lineStatus === "Pending";
                         const isLocked = selectedPaymentForLines.paymentStatus === "consumed";
                         const charges = line.charges;

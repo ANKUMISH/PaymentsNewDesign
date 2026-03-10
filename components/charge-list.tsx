@@ -107,9 +107,9 @@ export function ChargesList() {
 
   const filteredCharges = charges.filter((charge) => {
     const matchesSearch =
-      charge.patientName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      charge.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      charge.cptCode.includes(searchTerm)
+      (charge.patientName || "").toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (charge.description || "").toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (charge.cptCode || "").includes(searchTerm)
     const matchesStatus = statusFilter === "All" || charge.status === statusFilter
     return matchesSearch && matchesStatus
   })

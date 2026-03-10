@@ -241,10 +241,10 @@ export function TaskCenter() {
   }
 
   const filteredTasks = tasks.filter((task) => {
-    const titleMatch = task.title.toLowerCase().includes(filterTitle.toLowerCase())
+    const titleMatch = (task.title || "").toLowerCase().includes(filterTitle.toLowerCase())
     const statusMatch = filterStatus === "all" || task.status === filterStatus
     const priorityMatch = filterPriority === "all" || task.priority === filterPriority
-    const assigneeMatch = filterAssignee === "all" || task.assignedTo.includes(filterAssignee)
+    const assigneeMatch = filterAssignee === "all" || (task.assignedTo || "").includes(filterAssignee)
     return titleMatch && statusMatch && priorityMatch && assigneeMatch
   })
 

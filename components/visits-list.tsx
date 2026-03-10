@@ -654,13 +654,13 @@ export function VisitsList() {
   }, []);
 
   const filteredVisits = visits.filter((visit) => {
-    const matchesPatientName = visit.patientName
+    const matchesPatientName = (visit.patientName || "")
       .toLowerCase()
       .includes(patientNameFilter.toLowerCase());
-    const matchesVisitType = visit.visitType
+    const matchesVisitType = (visit.visitType || "")
       .toLowerCase()
       .includes(visitTypeFilter.toLowerCase());
-    const matchesProvider = visit.provider
+    const matchesProvider = (visit.provider || "")
       .toLowerCase()
       .includes(providerFilter.toLowerCase());
     const matchesStatus =
@@ -682,7 +682,7 @@ export function VisitsList() {
 
   // Filter providers based on search term
   const filteredProviders = uniqueProviders.filter((provider) =>
-    provider.toLowerCase().includes(providerSearchTerm.toLowerCase()),
+    (provider || "").toLowerCase().includes(providerSearchTerm.toLowerCase()),
   );
 
   const handleSelectVisit = (visitId: string, checked: boolean) => {
@@ -1633,7 +1633,7 @@ export function VisitsList() {
                           <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-300 rounded-md shadow-lg z-10">
                             {visits
                               .filter((v) =>
-                                v.patientName
+                                (v.patientName || "")
                                   .toLowerCase()
                                   .includes(patientSearchTerm.toLowerCase()),
                               )

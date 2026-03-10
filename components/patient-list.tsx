@@ -143,15 +143,15 @@ export function PatientList() {
 
   const filteredPatients = patients.filter((patient) => {
     const searchMatch =
-      patient.firstName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      patient.lastName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      patient.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (patient.firstName || "").toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (patient.lastName || "").toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (patient.id || "").toLowerCase().includes(searchTerm.toLowerCase()) ||
       (patient.email?.toLowerCase().includes(searchTerm.toLowerCase()) || false) ||
       (patient.phone?.includes(searchTerm) || false) ||
-      patient.insurance.toLowerCase().includes(searchTerm.toLowerCase())
+      (patient.insurance || "").toLowerCase().includes(searchTerm.toLowerCase())
 
-    const lastNameMatch = patient.lastName.toLowerCase().includes(filterLastName.toLowerCase())
-    const firstNameMatch = patient.firstName.toLowerCase().includes(filterFirstName.toLowerCase())
+    const lastNameMatch = (patient.lastName || "").toLowerCase().includes(filterLastName.toLowerCase())
+    const firstNameMatch = (patient.firstName || "").toLowerCase().includes(filterFirstName.toLowerCase())
     const genderMatch = filterGender === "all" || patient.gender === filterGender
     const emailMatch = (patient.email?.toLowerCase().includes(filterEmail.toLowerCase()) || false)
     const insuranceMatch = filterInsurance === "all" || patient.insurance === filterInsurance
