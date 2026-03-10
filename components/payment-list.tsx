@@ -11,7 +11,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 type PaymentStatus = "Paid" | "Denied" | "Applied" | "Unapplied" | "new" | "partial" | "consumed"
 type PaymentSource = "Patients" | "Insurance"
 type PaymentMethod = "Check" | "Credit Card" | "Cash" | "Bank Transfer"
-type LineStatus = "Pending" | "Applied"
+type LineStatus = "new" | "pending" | "applied"
 type InsurancePaymentStatus = "new" | "partial" | "consumed"
 
 interface ServiceLine {
@@ -206,9 +206,9 @@ export function PaymentList({ source = "Patients" }: PaymentListProps) {
         coins: 0,
         copay: 0,
         allowable: 0,
-        adjustment: 0,
-        appliedAmount: 0,
-        lineStatus: "Pending" as LineStatus,
+  adjustment: 0,
+  appliedAmount: 0,
+  lineStatus: "new" as LineStatus,
       },
     ],
   })
@@ -356,19 +356,19 @@ export function PaymentList({ source = "Patients" }: PaymentListProps) {
       id: "INS001",
       payerName: "United Healthcare",
       payerId: "INS-UH001",
-      amount: 2500.0,
+      amount: 485.50,
       checkDate: "2024-01-19",
       paymentMethod: "Check",
       checkNumber: "5001",
       status: "Paid",
       source: "Insurance",
-      documents: 4,
-      paymentStatus: "new",
-      totalApplied: 0,
-      totalRemaining: 2500.0,
+      documents: 2,
+      paymentStatus: "partial",
+      totalApplied: 150,
+      totalRemaining: 335.50,
       serviceLines: [
         {
-          id: "line-1",
+          id: "sl-1",
           patientName: "Sarah Johnson",
           dos: "2024-01-20",
           cpt: "99213",
@@ -380,27 +380,12 @@ export function PaymentList({ source = "Patients" }: PaymentListProps) {
           copay: 0,
           allowable: 150,
           adjustment: 0,
-          appliedAmount: 0,
-          lineStatus: "Pending",
+          appliedAmount: 150,
+          appliedOn: "03/10/2026",
+          lineStatus: "applied",
         },
         {
-          id: "line-2",
-          patientName: "Sarah Johnson",
-          dos: "2024-01-15",
-          cpt: "71046",
-          visitId: "V002",
-          charges: 250,
-          paymentAmount: 250,
-          deductible: 50,
-          coins: 25,
-          copay: 25,
-          allowable: 250,
-          adjustment: 0,
-          appliedAmount: 0,
-          lineStatus: "Pending",
-        },
-        {
-          id: "line-3",
+          id: "sl-2",
           patientName: "Michael Chen",
           dos: "2024-01-18",
           cpt: "85025",
@@ -413,58 +398,42 @@ export function PaymentList({ source = "Patients" }: PaymentListProps) {
           allowable: 180,
           adjustment: 0,
           appliedAmount: 0,
-          lineStatus: "Pending",
+          lineStatus: "pending",
         },
         {
-          id: "line-4",
-          patientName: "Michael Chen",
-          dos: "2024-01-10",
-          cpt: "99203",
-          visitId: "V004",
-          charges: 120,
-          paymentAmount: 120,
-          deductible: 25,
-          coins: 10,
-          copay: 0,
-          allowable: 120,
-          adjustment: 0,
-          appliedAmount: 0,
-          lineStatus: "Pending",
-        },
-        {
-          id: "line-5",
+          id: "sl-3",
           patientName: "Emily Rodriguez",
           dos: "2024-01-22",
           cpt: "99213",
           visitId: "V005",
           charges: 150,
-          paymentAmount: 150,
+          paymentAmount: 155.50,
           deductible: 0,
           coins: 0,
           copay: 0,
-          allowable: 150,
+          allowable: 155.50,
           adjustment: 0,
           appliedAmount: 0,
-          lineStatus: "Pending",
+          lineStatus: "new",
         },
+      ],
+    },
+    {
+      id: "INS002",
+      payerName: "Aetna Insurance",
+      payerId: "INS-AE002",
+      amount: 650,
+      checkDate: "2024-01-17",
+      paymentMethod: "EFT",
+      status: "Paid",
+      source: "Insurance",
+      documents: 1,
+      paymentStatus: "new",
+      totalApplied: 0,
+      totalRemaining: 650,
+      serviceLines: [
         {
-          id: "line-6",
-          patientName: "Emily Rodriguez",
-          dos: "2024-01-16",
-          cpt: "71020",
-          visitId: "V006",
-          charges: 320,
-          paymentAmount: 320,
-          deductible: 100,
-          coins: 50,
-          copay: 20,
-          allowable: 320,
-          adjustment: 0,
-          appliedAmount: 0,
-          lineStatus: "Pending",
-        },
-        {
-          id: "line-7",
+          id: "sl-4",
           patientName: "James Wilson",
           dos: "2024-01-25",
           cpt: "99215",
@@ -477,93 +446,10 @@ export function PaymentList({ source = "Patients" }: PaymentListProps) {
           allowable: 250,
           adjustment: 0,
           appliedAmount: 0,
-          lineStatus: "Pending",
+          lineStatus: "new",
         },
         {
-          id: "line-8",
-          patientName: "James Wilson",
-          dos: "2024-01-25",
-          cpt: "99214",
-          visitId: "V007B",
-          charges: 200,
-          paymentAmount: 200,
-          deductible: 0,
-          coins: 0,
-          copay: 0,
-          allowable: 200,
-          adjustment: 0,
-          appliedAmount: 0,
-          lineStatus: "Pending",
-        },
-      ],
-    },
-    {
-      id: "INS002",
-      payerName: "Aetna Insurance",
-      payerId: "INS-AE002",
-      amount: 1800.0,
-      checkDate: "2024-01-17",
-      paymentMethod: "EFT",
-      status: "Paid",
-      source: "Insurance",
-      documents: 2,
-      paymentStatus: "partial",
-      totalApplied: 950.0,
-      totalRemaining: 850.0,
-      serviceLines: [
-        {
-          id: "line-1",
-          patientName: "Sarah Johnson",
-          dos: "2024-01-20",
-          cpt: "99214",
-          visitId: "V001B",
-          charges: 200,
-          paymentAmount: 200,
-          deductible: 0,
-          coins: 0,
-          copay: 0,
-          allowable: 200,
-          adjustment: 0,
-          appliedAmount: 200,
-          appliedOn: "2024-01-21",
-          lineStatus: "Applied",
-        },
-        {
-          id: "line-2",
-          patientName: "Michael Chen",
-          dos: "2024-01-18",
-          cpt: "85026",
-          visitId: "V003B",
-          charges: 195,
-          paymentAmount: 195,
-          deductible: 0,
-          coins: 0,
-          copay: 0,
-          allowable: 195,
-          adjustment: 0,
-          appliedAmount: 195,
-          appliedOn: "2024-01-21",
-          lineStatus: "Applied",
-        },
-        {
-          id: "line-3",
-          patientName: "Emily Rodriguez",
-          dos: "2024-01-22",
-          cpt: "99213",
-          visitId: "V005",
-          charges: 150,
-          paymentAmount: 150,
-          deductible: 0,
-          coins: 0,
-          copay: 0,
-          allowable: 150,
-          adjustment: 0,
-          appliedAmount: 150,
-          appliedOn: "2024-01-21",
-          lineStatus: "Applied",
-        },
-        {
-          id: "line-4",
+          id: "sl-5",
           patientName: "Lisa Anderson",
           dos: "2024-01-19",
           cpt: "90834",
@@ -575,12 +461,11 @@ export function PaymentList({ source = "Patients" }: PaymentListProps) {
           copay: 0,
           allowable: 180,
           adjustment: 0,
-          appliedAmount: 405,
-          appliedOn: "2024-01-22",
-          lineStatus: "Applied",
+          appliedAmount: 0,
+          lineStatus: "new",
         },
         {
-          id: "line-5",
+          id: "sl-5b",
           patientName: "Lisa Anderson",
           dos: "2024-01-19",
           cpt: "90837",
@@ -593,7 +478,7 @@ export function PaymentList({ source = "Patients" }: PaymentListProps) {
           allowable: 210,
           adjustment: 0,
           appliedAmount: 0,
-          lineStatus: "Pending",
+          lineStatus: "new",
         },
       ],
     },
@@ -601,7 +486,7 @@ export function PaymentList({ source = "Patients" }: PaymentListProps) {
       id: "INS003",
       payerName: "Cigna Health",
       payerId: "INS-CG003",
-      amount: 950.0,
+      amount: 320,
       checkDate: "2024-01-14",
       paymentMethod: "Check",
       checkNumber: "5003",
@@ -609,45 +494,11 @@ export function PaymentList({ source = "Patients" }: PaymentListProps) {
       source: "Insurance",
       documents: 1,
       paymentStatus: "consumed",
-      totalApplied: 950.0,
+      totalApplied: 320,
       totalRemaining: 0,
       serviceLines: [
         {
-          id: "line-1",
-          patientName: "James Wilson",
-          dos: "2024-01-25",
-          cpt: "99215",
-          visitId: "V007",
-          charges: 250,
-          paymentAmount: 250,
-          deductible: 0,
-          coins: 0,
-          copay: 0,
-          allowable: 250,
-          adjustment: 0,
-          appliedAmount: 250,
-          appliedOn: "2024-01-15",
-          lineStatus: "Applied",
-        },
-        {
-          id: "line-2",
-          patientName: "James Wilson",
-          dos: "2024-01-25",
-          cpt: "99214",
-          visitId: "V007B",
-          charges: 200,
-          paymentAmount: 200,
-          deductible: 0,
-          coins: 0,
-          copay: 0,
-          allowable: 200,
-          adjustment: 0,
-          appliedAmount: 200,
-          appliedOn: "2024-01-15",
-          lineStatus: "Applied",
-        },
-        {
-          id: "line-3",
+          id: "sl-6",
           patientName: "Emily Rodriguez",
           dos: "2024-01-16",
           cpt: "71020",
@@ -660,283 +511,8 @@ export function PaymentList({ source = "Patients" }: PaymentListProps) {
           allowable: 320,
           adjustment: 0,
           appliedAmount: 320,
-          appliedOn: "2024-01-15",
-          lineStatus: "Applied",
-        },
-        {
-          id: "line-4",
-          patientName: "Sarah Johnson",
-          dos: "2024-01-15",
-          cpt: "71046",
-          visitId: "V002",
-          charges: 250,
-          paymentAmount: 250,
-          deductible: 50,
-          coins: 25,
-          copay: 25,
-          allowable: 250,
-          adjustment: 0,
-          appliedAmount: 180,
-          appliedOn: "2024-01-15",
-          lineStatus: "Applied",
-        },
-      ],
-    },
-    {
-      id: "INS004",
-      payerName: "Blue Cross Blue Shield",
-      payerId: "INS-BCBS004",
-      amount: 3200.0,
-      checkDate: "2024-01-12",
-      paymentMethod: "Check",
-      checkNumber: "5004",
-      status: "Paid",
-      source: "Insurance",
-      documents: 5,
-      paymentStatus: "new",
-      totalApplied: 0,
-      totalRemaining: 3200.0,
-      serviceLines: [
-        {
-          id: "line-1",
-          patientName: "Michael Chen",
-          dos: "2024-01-10",
-          cpt: "99204",
-          visitId: "V004B",
-          charges: 160,
-          paymentAmount: 160,
-          deductible: 0,
-          coins: 0,
-          copay: 0,
-          allowable: 160,
-          adjustment: 0,
-          appliedAmount: 0,
-          lineStatus: "Pending",
-        },
-        {
-          id: "line-2",
-          patientName: "Lisa Anderson",
-          dos: "2024-01-19",
-          cpt: "90834",
-          visitId: "V008",
-          charges: 180,
-          paymentAmount: 180,
-          deductible: 0,
-          coins: 0,
-          copay: 0,
-          allowable: 180,
-          adjustment: 0,
-          appliedAmount: 0,
-          lineStatus: "Pending",
-        },
-        {
-          id: "line-3",
-          patientName: "Sarah Johnson",
-          dos: "2024-01-20",
-          cpt: "99214",
-          visitId: "V001B",
-          charges: 200,
-          paymentAmount: 200,
-          deductible: 0,
-          coins: 0,
-          copay: 0,
-          allowable: 200,
-          adjustment: 0,
-          appliedAmount: 0,
-          lineStatus: "Pending",
-        },
-        {
-          id: "line-4",
-          patientName: "Emily Rodriguez",
-          dos: "2024-01-22",
-          cpt: "99213",
-          visitId: "V005",
-          charges: 150,
-          paymentAmount: 150,
-          deductible: 0,
-          coins: 0,
-          copay: 0,
-          allowable: 150,
-          adjustment: 0,
-          appliedAmount: 0,
-          lineStatus: "Pending",
-        },
-        {
-          id: "line-5",
-          patientName: "Lisa Anderson",
-          dos: "2024-01-19",
-          cpt: "90837",
-          visitId: "V008B",
-          charges: 210,
-          paymentAmount: 210,
-          deductible: 0,
-          coins: 0,
-          copay: 0,
-          allowable: 210,
-          adjustment: 0,
-          appliedAmount: 0,
-          lineStatus: "Pending",
-        },
-        {
-          id: "line-6",
-          patientName: "Michael Chen",
-          dos: "2024-01-18",
-          cpt: "85025",
-          visitId: "V003",
-          charges: 180,
-          paymentAmount: 180,
-          deductible: 0,
-          coins: 0,
-          copay: 0,
-          allowable: 180,
-          adjustment: 0,
-          appliedAmount: 0,
-          lineStatus: "Pending",
-        },
-        {
-          id: "line-7",
-          patientName: "Sarah Johnson",
-          dos: "2024-01-15",
-          cpt: "71045",
-          visitId: "V002B",
-          charges: 225,
-          paymentAmount: 225,
-          deductible: 0,
-          coins: 0,
-          copay: 0,
-          allowable: 225,
-          adjustment: 0,
-          appliedAmount: 0,
-          lineStatus: "Pending",
-        },
-        {
-          id: "line-8",
-          patientName: "Michael Chen",
-          dos: "2024-01-18",
-          cpt: "85026",
-          visitId: "V003B",
-          charges: 195,
-          paymentAmount: 195,
-          deductible: 0,
-          coins: 0,
-          copay: 0,
-          allowable: 195,
-          adjustment: 0,
-          appliedAmount: 0,
-          lineStatus: "Pending",
-        },
-        {
-          id: "line-9",
-          patientName: "James Wilson",
-          dos: "2024-01-25",
-          cpt: "99215",
-          visitId: "V007",
-          charges: 250,
-          paymentAmount: 250,
-          deductible: 0,
-          coins: 0,
-          copay: 0,
-          allowable: 250,
-          adjustment: 0,
-          appliedAmount: 0,
-          lineStatus: "Pending",
-        },
-        {
-          id: "line-10",
-          patientName: "Emily Rodriguez",
-          dos: "2024-01-16",
-          cpt: "71020",
-          visitId: "V006",
-          charges: 320,
-          paymentAmount: 320,
-          deductible: 100,
-          coins: 50,
-          copay: 20,
-          allowable: 320,
-          adjustment: 0,
-          appliedAmount: 0,
-          lineStatus: "Pending",
-        },
-      ],
-    },
-    {
-      id: "INS005",
-      payerName: "Humana Insurance",
-      payerId: "INS-HM005",
-      amount: 650.0,
-      checkDate: "2024-01-09",
-      paymentMethod: "Check",
-      checkNumber: "5005",
-      status: "Denied",
-      source: "Insurance",
-      documents: 1,
-      paymentStatus: "new",
-      totalApplied: 0,
-      totalRemaining: 650.0,
-      serviceLines: [
-        {
-          id: "line-1",
-          patientName: "Sarah Johnson",
-          dos: "2024-01-20",
-          cpt: "99213",
-          visitId: "V001",
-          charges: 150,
-          paymentAmount: 150,
-          deductible: 0,
-          coins: 0,
-          copay: 0,
-          allowable: 150,
-          adjustment: 0,
-          appliedAmount: 0,
-          lineStatus: "Pending",
-        },
-        {
-          id: "line-2",
-          patientName: "Michael Chen",
-          dos: "2024-01-18",
-          cpt: "85025",
-          visitId: "V003",
-          charges: 180,
-          paymentAmount: 180,
-          deductible: 0,
-          coins: 0,
-          copay: 0,
-          allowable: 180,
-          adjustment: 0,
-          appliedAmount: 0,
-          lineStatus: "Pending",
-        },
-        {
-          id: "line-3",
-          patientName: "Emily Rodriguez",
-          dos: "2024-01-22",
-          cpt: "99213",
-          visitId: "V005",
-          charges: 150,
-          paymentAmount: 150,
-          deductible: 0,
-          coins: 0,
-          copay: 0,
-          allowable: 150,
-          adjustment: 0,
-          appliedAmount: 0,
-          lineStatus: "Pending",
-        },
-        {
-          id: "line-4",
-          patientName: "Lisa Anderson",
-          dos: "2024-01-19",
-          cpt: "90834",
-          visitId: "V008",
-          charges: 180,
-          paymentAmount: 180,
-          deductible: 0,
-          coins: 0,
-          copay: 0,
-          allowable: 180,
-          adjustment: 0,
-          appliedAmount: 0,
-          lineStatus: "Pending",
+          appliedOn: "03/10/2026",
+          lineStatus: "applied",
         },
       ],
     },
@@ -1071,15 +647,15 @@ export function PaymentList({ source = "Patients" }: PaymentListProps) {
               <th className={`text-left text-xs font-semibold text-gray-700 ${source === "Insurance" ? "px-3 py-2" : "px-4 py-2"}`} style={{ borderRight: "0.5px solid #CBD5E1" }}>Check Number</th>
               <th className={`text-left text-xs font-semibold text-gray-700 ${source === "Insurance" ? "px-3 py-2" : "px-4 py-2"}`} style={{ borderRight: "0.5px solid #CBD5E1" }}>Payment Amount</th>
               <th className={`text-left text-xs font-semibold text-gray-700 ${source === "Insurance" ? "px-3 py-2" : "px-4 py-2"}`} style={{ borderRight: "0.5px solid #CBD5E1" }}>Applied Amount</th>
-              {source === "Insurance" && (
-                <th className="px-4 py-2 text-left text-xs font-semibold text-gray-700" style={{ borderRight: "0.5px solid #CBD5E1" }}>Status</th>
-              )}
               {source === "Patients" && (
-                <th className="px-4 py-2 text-left text-xs font-semibold text-gray-700" style={{ borderRight: "0.5px solid #CBD5E1" }}>Where Applied</th>
+                <>
+                  <th className="px-4 py-2 text-left text-xs font-semibold text-gray-700" style={{ borderRight: "0.5px solid #CBD5E1" }}>Where Applied</th>
+                  <th className={`text-left text-xs font-semibold text-gray-700 px-4 py-2`} style={{ borderRight: "0.5px solid #CBD5E1" }}>Note</th>
+                </>
               )}
-              <th className={`text-left text-xs font-semibold text-gray-700 ${source === "Insurance" ? "px-4 py-2" : "px-4 py-2"}`} style={{ borderRight: "0.5px solid #CBD5E1" }}>
-                {source === "Insurance" ? "Lines" : "Note"}
-              </th>
+              {source === "Insurance" && (
+                <th className={`text-left text-xs font-semibold text-gray-700 px-4 py-2`} style={{ borderRight: "0.5px solid #CBD5E1" }}>Apply Lines</th>
+              )}
               <th className="px-4 py-2 text-center text-xs font-semibold text-gray-700">Documents</th>
               <th className="px-4 py-2 text-center text-xs font-semibold text-gray-700">Actions</th>
             </tr>
@@ -1093,29 +669,32 @@ export function PaymentList({ source = "Patients" }: PaymentListProps) {
                 <td className={`text-xs text-gray-700 ${source === "Insurance" ? "px-3 py-2" : "px-4 py-2"}`} style={{ borderRight: "0.5px solid #CBD5E1" }}>{payment.paymentMethod}</td>
                 <td className={`text-xs text-gray-700 ${source === "Insurance" ? "px-3 py-2" : "px-4 py-2"}`} style={{ borderRight: "0.5px solid #CBD5E1" }}>{payment.checkNumber || "-"}</td>
                 <td className={`text-xs text-gray-700 font-semibold ${source === "Insurance" ? "px-3 py-2" : "px-4 py-2"}`} style={{ borderRight: "0.5px solid #CBD5E1" }}>${payment.amount.toFixed(2)}</td>
-                <td className={`text-xs text-gray-700 font-semibold ${source === "Insurance" ? "px-3 py-2" : "px-4 py-2"}`} style={{ borderRight: "0.5px solid #CBD5E1" }}>${source === "Insurance" ? (payment.totalApplied ?? 0).toFixed(2) : payment.amount.toFixed(2)}</td>
+                <td 
+                  className={`text-xs font-semibold ${source === "Insurance" ? "px-3 py-2" : "px-4 py-2"}`} 
+                  style={{ borderRight: "0.5px solid #CBD5E1", color: source === "Insurance" && (payment.serviceLines?.filter(l => l.lineStatus === "applied").reduce((s, l) => s + l.appliedAmount, 0) ?? 0) < payment.amount ? "rgb(220, 38, 38)" : "rgb(55, 65, 81)" }}
+                >
+                  ${source === "Insurance" ? (payment.serviceLines?.filter(l => l.lineStatus === "applied").reduce((s, l) => s + l.appliedAmount, 0) ?? 0).toFixed(2) : payment.amount.toFixed(2)}
+                </td>
                 {source === "Patients" && (
-                  <td className="px-2 py-2 text-xs text-gray-700 text-center w-20" style={{ borderRight: "0.5px solid #CBD5E1" }}>
-                    <button 
-                      onClick={() => {
-                        setSelectedPaymentForView(payment)
-                        setShowAppliedDetailsModal(true)
-                      }}
-                      className="text-blue-600 hover:text-blue-800 hover:underline cursor-pointer font-medium"
-                    >
-                      View
-                    </button>
-                  </td>
+                  <>
+                    <td className="px-2 py-2 text-xs text-gray-700 text-center w-20" style={{ borderRight: "0.5px solid #CBD5E1" }}>
+                      <button 
+                        onClick={() => {
+                          setSelectedPaymentForView(payment)
+                          setShowAppliedDetailsModal(true)
+                        }}
+                        className="text-blue-600 hover:text-blue-800 hover:underline cursor-pointer font-medium"
+                      >
+                        View
+                      </button>
+                    </td>
+                    <td className={`text-xs text-gray-700 px-4 py-2`} style={{ borderRight: "0.5px solid #CBD5E1" }}>
+                      {payment.note || "-"}
+                    </td>
+                  </>
                 )}
                 {source === "Insurance" && (
-                  <td className="px-4 py-2 text-center" style={{ borderRight: "0.5px solid #CBD5E1" }}>
-                    <span className={`inline-block px-2 py-1 text-xs font-medium rounded ${getInsurancePaymentStatusColor(payment.paymentStatus)}`}>
-                      {getInsurancePaymentStatusLabel(payment.paymentStatus)}
-                    </span>
-                  </td>
-                )}
-                <td className={`text-xs text-gray-700 ${source === "Insurance" ? "px-4 py-2 text-center" : "px-4 py-2"}`} style={{ borderRight: "0.5px solid #CBD5E1" }}>
-                  {source === "Insurance" ? (
+                  <td className={`text-xs text-gray-700 px-4 py-2 text-center`} style={{ borderRight: "0.5px solid #CBD5E1" }}>
                     <button 
                       onClick={() => {
                         setSelectedPaymentForLines(payment)
@@ -1128,18 +707,16 @@ export function PaymentList({ source = "Patients" }: PaymentListProps) {
                         <Lock className="w-5 h-5 mx-auto text-gray-400" />
                       ) : payment.paymentStatus === "partial" ? (
                         <span className="inline-flex items-center px-2 py-0.5 text-xs font-medium bg-orange-100 text-orange-700 rounded-full">
-                          {payment.serviceLines?.filter(l => l.lineStatus === "Applied").length ?? 0}/{payment.serviceLines?.length ?? 0} Applied
+                          {payment.serviceLines?.filter(l => l.lineStatus === "applied").length ?? 0}/{payment.serviceLines?.length ?? 0} Applied
                         </span>
                       ) : (
-                        <svg className="w-5 h-5 mx-auto text-green-600" fill="currentColor" viewBox="0 0 20 20">
+                        <svg className="w-5 h-5 mx-auto text-green-500" fill="currentColor" viewBox="0 0 20 20">
                           <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                         </svg>
                       )}
                     </button>
-                  ) : (
-                    payment.note || "-"
-                  )}
-                </td>
+                  </td>
+                )}
                 <td className="px-4 py-2 text-center" style={{ borderRight: "0.5px solid #CBD5E1" }}>
                   {payment.documents && payment.documents > 0 ? (
                     <button 
@@ -1218,7 +795,7 @@ export function PaymentList({ source = "Patients" }: PaymentListProps) {
                             <Paperclip className="w-4 h-4" style={{ color: "rgb(4, 53, 95)" }} />
                           </button>
                         )}
-                        {payment.paymentStatus !== "consumed" && (
+                        {(payment.paymentStatus === "new" || !payment.paymentStatus) && (
                           <>
                             <button 
                               onClick={() => {
@@ -2455,16 +2032,16 @@ export function PaymentList({ source = "Patients" }: PaymentListProps) {
       <Dialog open={showLinesDialog} onOpenChange={setShowLinesDialog}>
         <DialogContent className="!w-5/6 !max-w-none max-h-[90vh] overflow-y-auto">
           <div className="py-6 px-8">
-            <DialogHeader className="mb-6">
-              <DialogTitle>Apply Service Lines</DialogTitle>
-            </DialogHeader>
+  <DialogHeader className="mb-6">
+  <DialogTitle>Payment Breakdown</DialogTitle>
+  </DialogHeader>
 
             {selectedPaymentForLines && selectedPaymentForLines.serviceLines && (
               <div className="space-y-6">
                 {/* Status Banner */}
                 {selectedPaymentForLines.paymentStatus === "consumed" && (
                   <div className="p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
-                    <p className="text-sm font-semibold text-yellow-900">This payment is fully applied and locked. All service lines are applied.</p>
+                    <p className="text-sm font-semibold text-yellow-900">This payment is fully applied and locked. All service lines have been processed.</p>
                   </div>
                 )}
 
@@ -2487,8 +2064,10 @@ export function PaymentList({ source = "Patients" }: PaymentListProps) {
                     <p className="text-sm font-medium text-gray-900">${selectedPaymentForLines.amount.toFixed(2)}</p>
                   </div>
                   <div>
-                    <Label className="text-xs font-semibold text-gray-600">Applied / Remaining</Label>
-                    <p className="text-sm font-medium text-gray-900">${(selectedPaymentForLines.totalApplied || 0).toFixed(2)} / ${(selectedPaymentForLines.totalRemaining || selectedPaymentForLines.amount).toFixed(2)}</p>
+                  <Label className="text-xs font-semibold text-gray-600">Applied / Remaining</Label>
+                  <p className="text-sm font-medium text-gray-900">
+                    ${(selectedPaymentForLines.serviceLines?.filter(l => l.lineStatus === "applied").reduce((s, l) => s + l.appliedAmount, 0) ?? 0).toFixed(2)} / ${(selectedPaymentForLines.amount - (selectedPaymentForLines.serviceLines?.filter(l => l.lineStatus === "applied").reduce((s, l) => s + l.appliedAmount, 0) ?? 0)).toFixed(2)}
+                  </p>
                   </div>
                 </div>
 
@@ -2511,12 +2090,14 @@ export function PaymentList({ source = "Patients" }: PaymentListProps) {
                     </thead>
                     <tbody>
                       {(selectedPaymentForLines.serviceLines || []).map((line, index) => {
-                        const isPending = line.lineStatus === "Pending";
+                        const isNew = line.lineStatus === "new";
+                        const isPending = line.lineStatus === "pending";
+                        const isApplied = line.lineStatus === "applied";
                         const isLocked = selectedPaymentForLines.paymentStatus === "consumed";
                         const charges = line.charges;
                         
                         return (
-                          <tr key={line.id} className={isPending ? "bg-white" : "bg-gray-50"}>
+                          <tr key={line.id} className={isApplied ? "bg-gray-50" : "bg-white"}>
                             <td className="px-3 py-2 border-r border-gray-200 text-gray-700">{line.patientName}</td>
                             <td className="px-3 py-2 border-r border-gray-200 text-gray-700">{line.dos}</td>
                             <td className="px-3 py-2 border-r border-gray-200 text-gray-700">{line.cpt || "-"}</td>
@@ -2524,32 +2105,32 @@ export function PaymentList({ source = "Patients" }: PaymentListProps) {
                             <td className="px-3 py-2 border-r border-gray-200 text-gray-700 font-medium">${charges.toFixed(2)}</td>
                             <td className="px-3 py-2 border-r border-gray-200 text-gray-700 font-medium">${line.paymentAmount.toFixed(2)}</td>
                             <td className={`px-3 py-2 border-r border-gray-200 font-medium ${
-                              !isPending && line.appliedAmount < line.paymentAmount ? 'text-red-600' : 'text-gray-700'
+                              isApplied && line.appliedAmount < line.paymentAmount ? 'text-red-600' : 'text-gray-700'
                             }`}>
                               ${line.appliedAmount.toFixed(2)}
                             </td>
                             <td className="px-3 py-2 border-r border-gray-200 text-gray-700 text-xs">{line.appliedOn || "-"}</td>
                             <td className="px-3 py-2 border-r border-gray-200">
-                              {isPending ? (
+                              {isNew ? (
+                                <span className="inline-block px-2 py-1 text-xs font-medium bg-blue-100 text-blue-800 rounded">New</span>
+                              ) : isPending ? (
                                 <span className="inline-block px-2 py-1 text-xs font-medium bg-yellow-100 text-yellow-800 rounded">Pending</span>
                               ) : (
                                 <span className="inline-block px-2 py-1 text-xs font-medium bg-green-100 text-green-800 rounded">Applied</span>
                               )}
                             </td>
                             <td className="px-3 py-2">
-                              {isPending ? (
+                              {isNew ? (
                                 <button
                                   onClick={() => {
                                     const updated = [...(selectedPaymentForLines.serviceLines || [])];
-                                    updated[index].lineStatus = "Applied";
-                                    updated[index].appliedAmount = line.paymentAmount;
-                                    updated[index].appliedOn = new Date().toLocaleDateString();
+                                    updated[index].lineStatus = "pending";
                                     const updatedPayment = {
                                       ...selectedPaymentForLines,
                                       serviceLines: updated,
-                                      paymentStatus: updated.every(l => l.lineStatus === "Applied") ? "consumed" as InsurancePaymentStatus : "partial" as InsurancePaymentStatus,
-                                      totalApplied: updated.reduce((sum, l) => sum + l.appliedAmount, 0),
-                                      totalRemaining: selectedPaymentForLines.amount - updated.reduce((sum, l) => sum + l.appliedAmount, 0)
+                                      paymentStatus: "partial" as InsurancePaymentStatus,
+                                      totalApplied: updated.reduce((sum, l) => sum + (l.lineStatus === "applied" ? l.appliedAmount : 0), 0),
+                                      totalRemaining: selectedPaymentForLines.amount - updated.reduce((sum, l) => sum + (l.lineStatus === "applied" ? l.appliedAmount : 0), 0)
                                     };
                                     setSelectedPaymentForLines(updatedPayment);
                                     setPayments(prev =>
@@ -2560,28 +2141,26 @@ export function PaymentList({ source = "Patients" }: PaymentListProps) {
                                 >
                                   Apply
                                 </button>
-                              ) : !isLocked ? (
+                              ) : isPending ? (
                                 <button
                                   onClick={() => {
                                     const updated = [...(selectedPaymentForLines.serviceLines || [])];
-                                    updated[index].lineStatus = "Pending";
-                                    updated[index].appliedAmount = 0;
-                                    updated[index].appliedOn = undefined;
+                                    updated[index].lineStatus = "new";
                                     const updatedPayment = {
                                       ...selectedPaymentForLines,
                                       serviceLines: updated,
-                                      paymentStatus: updated.some(l => l.lineStatus === "Applied") ? "partial" as InsurancePaymentStatus : "new" as InsurancePaymentStatus,
-                                      totalApplied: updated.reduce((sum, l) => sum + l.appliedAmount, 0),
-                                      totalRemaining: selectedPaymentForLines.amount - updated.reduce((sum, l) => sum + l.appliedAmount, 0)
+                                      paymentStatus: updated.some(l => l.lineStatus === "applied") ? "partial" as InsurancePaymentStatus : "new" as InsurancePaymentStatus,
+                                      totalApplied: updated.reduce((sum, l) => sum + (l.lineStatus === "applied" ? l.appliedAmount : 0), 0),
+                                      totalRemaining: selectedPaymentForLines.amount - updated.reduce((sum, l) => sum + (l.lineStatus === "applied" ? l.appliedAmount : 0), 0)
                                     };
                                     setSelectedPaymentForLines(updatedPayment);
                                     setPayments(prev =>
                                       prev.map(p => p.id === updatedPayment.id ? updatedPayment : p)
                                     );
                                   }}
-                                  className="px-2 py-1 text-xs bg-red-500 hover:bg-red-600 text-white rounded transition-colors"
+                                  className="px-2 py-1 text-xs border border-gray-300 hover:bg-gray-50 text-gray-600 rounded transition-colors"
                                 >
-                                  Reverse
+                                  Cancel
                                 </button>
                               ) : null}
                             </td>
@@ -2604,21 +2183,20 @@ export function PaymentList({ source = "Patients" }: PaymentListProps) {
                 {/* Dialog Actions */}
                 <div className="flex justify-between items-center mt-6 border-t pt-4">
                   <div>
-                    {selectedPaymentForLines.paymentStatus !== "consumed" && selectedPaymentForLines.serviceLines.some(l => l.lineStatus === "Pending") && (
+                    {selectedPaymentForLines.paymentStatus !== "consumed" && selectedPaymentForLines.serviceLines.some(l => l.lineStatus === "new") && (
                       <Button
                         onClick={() => {
                           const updated = selectedPaymentForLines.serviceLines.map(line => ({
                             ...line,
-                            lineStatus: "Applied" as LineStatus,
-                            appliedAmount: line.appliedAmount > 0 ? line.appliedAmount : line.paymentAmount,
-                            appliedOn: line.appliedOn || new Date().toLocaleDateString()
+                            lineStatus: line.lineStatus === "new" ? "pending" as LineStatus : line.lineStatus
                           }));
+                          const totalApplied = updated.reduce((sum, l) => sum + (l.lineStatus === "applied" ? l.appliedAmount : 0), 0);
                           const updatedPayment = {
                             ...selectedPaymentForLines,
                             serviceLines: updated,
-                            paymentStatus: "consumed" as InsurancePaymentStatus,
-                            totalApplied: updated.reduce((sum, l) => sum + l.appliedAmount, 0),
-                            totalRemaining: 0
+                            paymentStatus: totalApplied >= selectedPaymentForLines.amount ? "consumed" as InsurancePaymentStatus : "partial" as InsurancePaymentStatus,
+                            totalApplied: totalApplied,
+                            totalRemaining: selectedPaymentForLines.amount - totalApplied
                           };
                           setSelectedPaymentForLines(updatedPayment);
                           setPayments(prev =>
@@ -2627,7 +2205,7 @@ export function PaymentList({ source = "Patients" }: PaymentListProps) {
                         }}
                         className="bg-orange-500 hover:bg-orange-600 text-white text-xs"
                       >
-                        Apply All Pending
+                        Submit All for Posting
                       </Button>
                     )}
                   </div>
