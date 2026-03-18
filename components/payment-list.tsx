@@ -2193,12 +2193,12 @@ export function PaymentList({ source = "Patients" }: PaymentListProps) {
 
                 {/* Add Line Item Form Section */}
                 {showAddLineInDialog && (
-                  <div className="mt-6 p-4 border border-gray-200 rounded-lg bg-white">
+                  <div className="mt-6 p-4 border border-gray-200 rounded-lg bg-white" suppressHydrationWarning>
                     <h4 className="text-sm font-semibold text-gray-800 mb-4">Add New Service Line</h4>
-                    <div className="border border-gray-200 rounded-lg overflow-hidden">
-                      <table className="w-full text-xs">
-                        <thead style={{ backgroundColor: "#F1F5F9" }}>
-                          <tr>
+                    <div className="border border-gray-200 rounded-lg overflow-hidden" suppressHydrationWarning>
+                      <table className="w-full text-xs" suppressHydrationWarning>
+                        <thead style={{ backgroundColor: "#F1F5F9" }} suppressHydrationWarning>
+                          <tr suppressHydrationWarning>
                             <th className="px-3 py-2 text-left font-semibold text-gray-700 border-r border-gray-200">Patient Name <span className="text-red-500">*</span></th>
                             <th className="px-3 py-2 text-left font-semibold text-gray-700 border-r border-gray-200">DOS <span className="text-red-500">*</span></th>
                             <th className="px-3 py-2 text-left font-semibold text-gray-700 border-r border-gray-200">CPT <span className="text-red-500">*</span></th>
@@ -2212,30 +2212,30 @@ export function PaymentList({ source = "Patients" }: PaymentListProps) {
                             <th className="px-3 py-2 text-left font-semibold text-gray-700"></th>
                           </tr>
                         </thead>
-                        <tbody>
-                          <tr className="bg-white border-t border-gray-200">
-                            <td className="px-2 py-2 border-r border-gray-200">
+                        <tbody suppressHydrationWarning>
+                          <tr className="bg-white border-t border-gray-200" suppressHydrationWarning>
+                            <td className="px-2 py-2 border-r border-gray-200" suppressHydrationWarning>
                               <Select value={newLineInDialog.patientName} onValueChange={(value) => {
                                 setNewLineInDialog({...newLineInDialog, patientName: value, dos: "", cpt: "", charges: 0});
                               }}>
-                                <SelectTrigger className="h-6 text-xs border-0 px-1 focus:ring-0">
+                                <SelectTrigger className="h-6 text-xs border-0 px-1 focus:ring-0" suppressHydrationWarning suppressContentHydrationWarning>
                                   <SelectValue placeholder="Select patient" />
                                 </SelectTrigger>
-                                <SelectContent>
+                                <SelectContent suppressHydrationWarning>
                                   {SAMPLE_PATIENTS.map((p) => (
                                     <SelectItem key={p.id} value={p.firstName + " " + p.lastName}>{p.firstName} {p.lastName}</SelectItem>
                                   ))}
                                 </SelectContent>
                               </Select>
                             </td>
-                            <td className="px-2 py-2 border-r border-gray-200">
+                            <td className="px-2 py-2 border-r border-gray-200" suppressHydrationWarning>
                               <Select value={newLineInDialog.dos} onValueChange={(value) => {
                                 setNewLineInDialog({...newLineInDialog, dos: value, cpt: "", charges: 0});
                               }}>
-                                <SelectTrigger className="h-6 text-xs border-0 px-1 focus:ring-0">
+                                <SelectTrigger className="h-6 text-xs border-0 px-1 focus:ring-0" suppressHydrationWarning suppressContentHydrationWarning>
                                   <SelectValue placeholder="Select DOS" />
                                 </SelectTrigger>
-                                <SelectContent>
+                                <SelectContent suppressHydrationWarning>
                                   {newLineInDialog.patientName && VISITS[newLineInDialog.patientName] ? 
                                     Object.keys(VISITS[newLineInDialog.patientName]).map(dos => (
                                       <SelectItem key={dos} value={dos}>{dos}</SelectItem>
@@ -2244,7 +2244,7 @@ export function PaymentList({ source = "Patients" }: PaymentListProps) {
                                 </SelectContent>
                               </Select>
                             </td>
-                            <td className="px-2 py-2 border-r border-gray-200">
+                            <td className="px-2 py-2 border-r border-gray-200" suppressHydrationWarning>
                               <Select value={newLineInDialog.cpt} onValueChange={(value) => {
                                 if (newLineInDialog.patientName && VISITS[newLineInDialog.patientName]?.[newLineInDialog.dos]) {
                                   const charges = VISITS[newLineInDialog.patientName][newLineInDialog.dos].charges[value] || 0;
@@ -2253,10 +2253,10 @@ export function PaymentList({ source = "Patients" }: PaymentListProps) {
                                   setNewLineInDialog({...newLineInDialog, cpt: value});
                                 }
                               }}>
-                                <SelectTrigger className="h-6 text-xs border-0 px-1 focus:ring-0">
+                                <SelectTrigger className="h-6 text-xs border-0 px-1 focus:ring-0" suppressHydrationWarning suppressContentHydrationWarning>
                                   <SelectValue placeholder="Select CPT" />
                                 </SelectTrigger>
-                                <SelectContent>
+                                <SelectContent suppressHydrationWarning>
                                   {newLineInDialog.patientName && newLineInDialog.dos && VISITS[newLineInDialog.patientName]?.[newLineInDialog.dos] ? 
                                     VISITS[newLineInDialog.patientName][newLineInDialog.dos].cpts.map(cpt => (
                                       <SelectItem key={cpt} value={cpt}>{cpt}</SelectItem>
@@ -2265,12 +2265,12 @@ export function PaymentList({ source = "Patients" }: PaymentListProps) {
                                 </SelectContent>
                               </Select>
                             </td>
-                            <td className="px-2 py-2 border-r border-gray-200">
+                            <td className="px-2 py-2 border-r border-gray-200" suppressHydrationWarning>
                               <div className="text-xs px-1 py-1 bg-gray-100 rounded">
                                 ${newLineInDialog.charges.toFixed(2)}
                               </div>
                             </td>
-                            <td className="px-2 py-2 border-r border-gray-200">
+                            <td className="px-2 py-2 border-r border-gray-200" suppressHydrationWarning>
                               <input 
                                 type="number"
                                 placeholder="0.00"
@@ -2280,7 +2280,7 @@ export function PaymentList({ source = "Patients" }: PaymentListProps) {
                                 className="w-full px-2 py-1 text-xs border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-orange-400" 
                               />
                             </td>
-                            <td className="px-2 py-2 border-r border-gray-200">
+                            <td className="px-2 py-2 border-r border-gray-200" suppressHydrationWarning>
                               <input 
                                 type="number"
                                 placeholder="0.00"
@@ -2290,7 +2290,7 @@ export function PaymentList({ source = "Patients" }: PaymentListProps) {
                                 className="w-full px-2 py-1 text-xs border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-orange-400" 
                               />
                             </td>
-                            <td className="px-2 py-2 border-r border-gray-200">
+                            <td className="px-2 py-2 border-r border-gray-200" suppressHydrationWarning>
                               <input 
                                 type="number"
                                 placeholder="0.00"
@@ -2300,7 +2300,7 @@ export function PaymentList({ source = "Patients" }: PaymentListProps) {
                                 className="w-full px-2 py-1 text-xs border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-orange-400" 
                               />
                             </td>
-                            <td className="px-2 py-2 border-r border-gray-200">
+                            <td className="px-2 py-2 border-r border-gray-200" suppressHydrationWarning>
                               <input 
                                 type="number"
                                 placeholder="0.00"
@@ -2310,7 +2310,7 @@ export function PaymentList({ source = "Patients" }: PaymentListProps) {
                                 className="w-full px-2 py-1 text-xs border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-orange-400" 
                               />
                             </td>
-                            <td className="px-2 py-2 border-r border-gray-200">
+                            <td className="px-2 py-2 border-r border-gray-200" suppressHydrationWarning>
                               <input 
                                 type="number"
                                 placeholder="0.00"
@@ -2320,7 +2320,7 @@ export function PaymentList({ source = "Patients" }: PaymentListProps) {
                                 className="w-full px-2 py-1 text-xs border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-orange-400" 
                               />
                             </td>
-                            <td className="px-2 py-2 border-r border-gray-200">
+                            <td className="px-2 py-2 border-r border-gray-200" suppressHydrationWarning>
                               <input 
                                 type="number"
                                 placeholder="0.00"
@@ -2330,7 +2330,7 @@ export function PaymentList({ source = "Patients" }: PaymentListProps) {
                                 className="w-full px-2 py-1 text-xs border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-orange-400" 
                               />
                             </td>
-                            <td className="px-2 py-2 flex gap-1">
+                            <td className="px-2 py-2 flex gap-1" suppressHydrationWarning>
                               <button 
                                 onClick={() => {
                                   if (!newLineInDialog.patientName || !newLineInDialog.dos || !newLineInDialog.cpt) {
